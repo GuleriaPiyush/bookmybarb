@@ -1,6 +1,10 @@
 from django.urls import path
-from .views import api_services
+from .views import ServiceView,ServiceCreate,assign_templates_to_dates
 
 urlpatterns = [
-    path("api/services/", api_services, name="api_services"),
+    # shop owener urls
+    path("services/", ServiceView, name="serviceview"),
+    path("services/create/",ServiceCreate, name="servicecreate" ),
+    path("assign-template/",assign_templates_to_dates, name="assigntemplate" ),
+
 ]

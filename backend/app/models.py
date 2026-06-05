@@ -11,17 +11,32 @@ class Service(models.Model):
     duration_minutes = models.PositiveIntegerField(default=30)
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    required_slot = models.IntegerField(default=1)
+
+class ScheduleTemplate(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+class TemplateSlot(models.Model):
+    template = models.ForeignKey(ScheduleTemplate, on_delete=models.CASCADE, related_name='slots')
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+
+    class Meta:
+        ordering = ['start_time']
+        unique_together = ('template', 'start_time')
 
 class Slot(models.Model):
     date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField()
     is_booked = models.BooleanField(default=False)
-    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        ordering = ['date','start_time']
-        unique_together = ('date', 'start_time') #Prevent double-booking a slot
+        ordering = ['date', 'start_time']
+        unique_together = ('date', 'start_time')
 
 class Booking(models.Model):
     status_choice = [
@@ -32,7 +47,7 @@ class Booking(models.Model):
 
     customer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookings')
     service = models.ForeignKey(Service, on_delete=models.CASCADE, related_name='bookings_as_service')
-    slot = models.ForeignKey(Slot, on_delete=models.CASCADE, related_name='bookings_as_slot')
+    slots = models.ManyToManyField(Slot, related_name='bookings_as_slot')
     status = models.CharField(max_length=15, choices=status_choice, default='PENDING')
     created_at = models.DateTimeField(auto_now_add=True)
 
