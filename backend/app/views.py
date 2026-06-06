@@ -81,6 +81,7 @@ def create_booking(request):
     date_str = request.data.get('date')
     start_time_str = request.data.get('start_time')
     customer_id = request.data.get('customer_id')
+    customer_name = request.data.get('customer_name')
 
     if not all([service_id, date_str, start_time_str]):
         return Response({"error": "service_id, date, and start_time are required."}, status=400)
@@ -90,8 +91,14 @@ def create_booking(request):
     except Service.DoesNotExist:
         return Response({"error": "Service not found."}, status=404)
 
-    # Get or default to first User
-    customer = User.objects.filter(id=customer_id).first() or User.objects.first()
+    # Resolve customer dynamically
+    if customer_name:
+        customer, created = User.objects.get_or_create(username=customer_name)
+    elif customer_id:
+        customer = User.objects.filter(id=customer_id).first()
+    else:
+        customer = User.objects.first()
+
     if not customer:
         customer = User.objects.create_user(username='guest', password='password123')
 
@@ -209,6 +216,13 @@ def available_slots(request):
             available_start_slots.append(window[0])
 
     serializer = SlotSerializer(available_start_slots, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+def list_templates(request):
+    templates = ScheduleTemplate.objects.all()
+    serializer = ScheduleTemplateSerializer(templates, many=True)
     return Response(serializer.data)
 
 
