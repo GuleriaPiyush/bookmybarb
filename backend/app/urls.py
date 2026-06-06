@@ -1,7 +1,8 @@
 from django.urls import path
 from .views import (
     ServiceView, ServiceCreate, assign_templates_to_dates, 
-    available_slots, create_booking, list_bookings, update_booking_status
+    available_slots, create_booking, list_bookings, update_booking_status,
+    list_templates
 )
 
 urlpatterns = [
@@ -10,6 +11,7 @@ urlpatterns = [
     path("services/create/", ServiceCreate, name="servicecreate"),
     path("assign-template/", assign_templates_to_dates, name="assigntemplate"),
     path("available-slots/", available_slots, name="availableslots"),
+    path("templates/", list_templates, name="listtemplates"),
     
     # booking urls
     path("bookings/create/", create_booking, name="createbooking"),
